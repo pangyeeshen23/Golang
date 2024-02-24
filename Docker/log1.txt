@@ -1,0 +1,59 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 709B done
+#1 DONE 0.0s
+
+#2 resolve image config for docker.io/docker/dockerfile:1
+#2 DONE 0.9s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:ac85f380a63b13dfcefa89046420e1781752bab202122f8f50032edf31be0021
+#3 CACHED
+
+#4 [internal] load metadata for docker.io/library/golang:1.21.3
+#4 DONE 0.8s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 643B done
+#5 DONE 0.0s
+
+#6 [base 1/5] FROM docker.io/library/golang:1.21.3@sha256:b113af1e8b06f06a18ad41a6b331646dff587d7a4cf740f4852d16c49ed8ad73
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 880B done
+#7 DONE 0.0s
+
+#8 [base 2/5] WORKDIR /src
+#8 CACHED
+
+#9 [base 3/5] COPY go.mod go.sum ./
+#9 CACHED
+
+#10 [base 4/5] RUN --mount=type=cache,target=/go/pkg/mod/     go mod download
+#10 CACHED
+
+#11 [base 5/5] COPY . .
+#11 DONE 0.0s
+
+#12 [client 1/2] RUN mkdir -p /bin/client
+#12 0.283 runc run failed: unable to start container process: exec: "/bin/sh": stat /bin/sh: no such file or directory
+#12 ERROR: process "/bin/sh -c mkdir -p /bin/client" did not complete successfully: exit code: 1
+
+#13 [build-client 1/1] RUN --mount=type=cache,target=/go/pkg/mod/     go build -o /bin/client ./cmd/client
+#13 CANCELED
+------
+ > [client 1/2] RUN mkdir -p /bin/client:
+0.283 runc run failed: unable to start container process: exec: "/bin/sh": stat /bin/sh: no such file or directory
+------
+Dockerfile:18
+--------------------
+  16 |     
+  17 |     FROM scratch AS client
+  18 | >>> RUN mkdir -p /bin/client 
+  19 |     COPY --from=build-client /bin/client /bin/client
+  20 |     ENTRYPOINT [ "/bin/client" ]
+--------------------
+ERROR: failed to solve: process "/bin/sh -c mkdir -p /bin/client" did not complete successfully: exit code: 1
+
+View build details: docker-desktop://dashboard/build/default/default/sfx3v5yon326pdhfg6jmyza6q

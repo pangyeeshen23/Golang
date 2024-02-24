@@ -1,8 +1,25 @@
 # syntax=docker/dockerfile:1
-FROM golang:1.21.3
+FROM golang:1.21.3 AS base
 WORKDIR /src
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod/ \
+    go mod download
 COPY . .
-RUN go mod download
-RUN go build -o /bin/client ./cmd/client
-RUN go build -o /bin/server ./cmd/server
+
+FROM base AS build-client
+RUN --mount=type=cache,target=/go/pkg/mod/ \
+    go build -o /bin/client ./cmd/client
+
+FROM base AS build-server
+RUN --mount=type=cache,taget=/go/pkg/mod/ \
+    go build -o /bin/server ./cmd/server
+
+FROM scratch AS client
+RUN mkdir -p /bin/client 
+COPY --from=build-client /bin/client /bin/client
+ENTRYPOINT [ "/bin/client" ]
+
+FROM scratch AS server
+RUN mkdir -p /bin/server
+COPY --from=build-server /bin/server /bin/server
 ENTRYPOINT [ "/bin/server" ]
